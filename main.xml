@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+
+  <define>
+    <include ref="ip6/ip6_defs.xml" /> 
+    <include ref="compact/definitions.xml" />
+  </define>
+
+  <includes>
+    <gdmlFile ref="compact/elements.xml"/>
+    <gdmlFile ref="compact/materials.xml"/>
+    <file     ref="compact/optical_materials.xml"/>
+  </includes>
+
+  <limits>
+    <limitset name="EICBeamlineLimits">
+      <limit name="step_length_max" particles="*" value="1.0" unit="mm" />
+      <limit name="track_length_max" particles="*" value="1.0" unit="mm" />
+      <limit name="time_max" particles="*" value="0.1" unit="ns" />
+      <limit name="ekin_min" particles="*" value="0.001" unit="MeV" />
+      <limit name="range_min" particles="*" value="0.1" unit="mm" />
+    </limitset>
+    <limitset name="cal_limits">
+      <limit name="step_length_max" particles="*" value="5.0" unit="mm"/>
+    </limitset>
+  </limits>
+
+  <display>
+    <include ref="compact/colors.xml" />
+    <include ref="compact/display.xml" />
+    <include ref="counter/display.xml" />
+  </display>
+
+  <include ref="ip6/beampipe.xml"/>
+
+  <include ref="counter/forward_electron_layout.xml" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</lccdd>
+

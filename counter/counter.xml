@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+
+  <detectors>
+
+    <detector id="3003" name="CounterBox" type="DD4hep_BoxSegment" vis="Shape1_vis">
+      <material name="Vacuum"/>
+        <box      x="400*mm" y="400*mm" z="600*mm"/>
+        <position x="0" y="800*mm" z="0"/>
+        <rotation x="0*rad"  y="0*rad"   z="0*rad"/>
+    </detector>
+
+
+
+    <detector id="195" 
+      name="Tag_1_Count"
+      type="ParticleCounter"
+      readout="ParticleCounter"
+      vis="Shape1_vis"
+      place_into="CounterBox">
+      <dimensions x="100*mm" y="100*mm" z="200*mm"/>
+      <position   x="0"     y="0"                z="0"/>
+      <rotation   x="0*rad"           y="0*rad"     z="0*rad"/>
+    </detector>
+
+    <comment>
+
+
+    <detector id="3001" 
+      name="ParticleCounter"
+      type="ParticleCountCyl"
+      readout="ParticleCounter"
+      envelope="CounterBox">
+      <dimensions r="250*mm" dr="100*mm" z="500*mm"/>
+    </detector>
+
+</comment>
+
+    <comment>
+
+
+
+    <detector id="3001" 
+      name="ParticleCounter"
+      type="ParticleCountCyl"
+      readout="ParticleCounter">
+      <dimensions r="250*mm" dr="100*mm" z="500*mm"/>
+    </detector>
+    </comment>
+
+
+
+
+
+  </detectors>
+
+    <readouts>
+        <readout name="ParticleCounter">
+            <id>system:1</id>
+        </readout>
+    </readouts>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</lccdd>
+

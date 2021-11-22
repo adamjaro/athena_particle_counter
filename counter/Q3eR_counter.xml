@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+
+  <define>
+
+    <constant name="Q3eR_count_DZ" value="1*cm"/>
+
+  </define>
+
+  <detectors>
+
+    <detector id="194"
+      name="Q3eR_ParticleCounter"
+      type="ParticleCounterTube"
+      vis="Shape1_vis"
+      readout="ParticleCounter"
+      place_into="Q3eRvac">
+      <dimensions inner_r="0" outer_r="Q3eR_InnerRadius" z="Q3eR_count_DZ/2"/>
+      <position x="0" y="0" z="Q3eR_Length/2-Q3eR_count_DZ/2"/>
+      <rotation x="0" y="0" z="0"/>
+    </detector>
+
+  </detectors>
+
+  <readouts>
+    <readout name="ParticleCounter">
+      <id>system:1</id>
+    </readout>
+  </readouts>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</lccdd>
+

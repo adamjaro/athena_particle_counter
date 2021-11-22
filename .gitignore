@@ -1,0 +1,9 @@
+build
+compact
+fieldmaps
+calibrations
+ip6
+lib
+*.root
+*.pdf
+*.csv

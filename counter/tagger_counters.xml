@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+
+
+  <define>
+
+    <comment>  
+
+    <constant name="Tag_Box_1_Depth"    value="175*mm"/>
+    <constant name="Tag_Box_2_Depth"    value="Tag_Box_1_Depth"/>
+    <constant name="Tag_Box_1_Width"  value="200*mm"/>
+    <constant name="Tag_Box_2_Width"  value="150*mm"/>
+    <constant name="Tag_Box_1_z"  value="24175*mm"/>
+    <constant name="Tag_Box_2_z"  value="36175*mm"/>
+    <constant name="Tag_Box_1_x"  value="-530*mm"/>
+    <constant name="Tag_Box_2_x"  value="-662*mm"/>
+    <constant name="Tag_Box_1_Height"  value="200*mm"/>
+    <constant name="Tag_Box_2_Height"  value="100*mm"/>
+    <constant name="Tag_Box_1_Angle"  value="0.018332*rad"/>
+    <constant name="Tag_Box_2_Angle"  value="Tag_Box_1_Angle"/>
+
+    </comment>
+
+    <constant name="Tag_Count_DZ" value="1*cm"/>
+
+  </define>
+
+
+
+
+  <detectors>
+
+
+
+    <detector id="195" 
+      name="Tag_1_ParticleCounter"
+      type="ParticleCounter"
+      vis="Shape1_vis"
+      readout="ParticleCounterS1"
+      place_into="Tagger1box">
+      <dimensions x="Tag1_size_X/2" y="Tag1_size_Y/2" z="Tag_Count_DZ/2"/>
+      <position   x="0"     y="0"                z="Tag1_Length/2-Tag_Count_DZ/2"/>
+      <rotation   x="0*rad"           y="0*rad"     z="0*rad"/>
+    </detector>
+
+    <detector id="196" 
+      name="Tag_2_ParticleCounter"
+      type="ParticleCounter"
+      vis="Shape1_vis"
+      readout="ParticleCounterS2"
+      place_into="Tagger2box">
+      <dimensions x="Tag2_size_X/2" y="Tag2_size_Y/2" z="Tag_Count_DZ/2"/>
+      <position   x="0"     y="0"                z="Tag2_Length/2-Tag_Count_DZ/2"/>
+      <rotation   x="0*rad"           y="0*rad"     z="0*rad"/>
+    </detector>
+
+    <comment>
+
+    <detector id="194" name="Tagger1box" type="DD4hep_BoxSegment" vis="Shape1_vis">
+      <material name="Vacuum"/>
+      <box      x="Tag_Box_1_Width" y="Tag_Box_1_Height" z="Tag_Box_1_Depth"/>
+      <position   x="Tag_Box_1_x"     y="0"                z="-Tag_Box_1_z"/>
+      <rotation   x="0*rad"           y="0.018332*rad"     z="0*rad"/>
+    </detector>
+    </comment>
+
+<comment>
+    <detector id="197" name="Tagger2box" type="DD4hep_BoxSegment" vis="Shape1_vis">
+      <material name="Vacuum"/>
+      <box      x="Tag_Box_2_Width" y="Tag_Box_2_Height" z="Tag_Box_2_Depth"/>
+      <position   x="Tag_Box_2_x"     y="0"                z="-Tag_Box_2_z"/>
+      <rotation   x="0*rad"           y="0.018332*rad"     z="0*rad"/>
+    </detector>
+</comment>
+
+
+
+
+
+  </detectors>
+
+  <readouts>
+
+    <readout name="ParticleCounterS1">
+      <id>system:1</id>
+    </readout>
+
+    <readout name="ParticleCounterS2">
+      <id>system:1</id>
+    </readout>
+
+  </readouts>
+
+</lccdd>
+
+
+
+
+
+
+
+
+
+
+
+
+
