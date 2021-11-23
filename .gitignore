@@ -7,3 +7,4 @@ lib
 *.root
 *.pdf
 *.csv
+*.pyc
