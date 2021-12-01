@@ -10,47 +10,51 @@ from analysis import analysis
 #_____________________________________________________________________________
 def main():
 
-    #input
-    indir = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a"
-    inlist = glob(indir+"/000?/"+"output.root")
+    #geometry
+    compact = "../../../athena/athena.xml"
 
+    #input
+    #indir = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a"
+    indir = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a"
+    inlist = glob(indir+"/0000/"+"output.root")
+
+    #output
     outfile = "ddhits.root"
 
-    det = [ \
-	"VertexBarrelHits", \
-	"EcalEndcapPHits", \
-	"DIRCBarHits", \
-	"TrackerBarrelHits", \
-	"TrackerEndcapHits", \
-	"MPGDTrackerBarrelHits", \
-	"GEMTrackerEndcapHits", \
-	"EcalEndcapNHits", \
-	"EcalBarrelHits", \
-	"EcalBarrelScFiHits", \
-	"HcalBarrelHits", \
-	"HcalEndcapNHits", \
-	"HcalEndcapPHits" \
-    ]
-    pmt = [ \
-	"ERICHHits", \
-	"DRICHHits", \
-    ]
-
+    #analysis instance
     ana = analysis(outfile)
     ana.set_input(inlist)
 
-    for i in det:
-        ana.add_detector(i)
-    for i in pmt:
-        ana.add_pmt(i)
+    ana.load_detectors(compact)
 
     ana.event_loop()
 
-
+#main
 
 #_____________________________________________________________________________
 if __name__ == "__main__":
 
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

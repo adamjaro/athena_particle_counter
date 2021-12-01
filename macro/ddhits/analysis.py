@@ -1,10 +1,15 @@
 
 from ROOT import TFile
 
+from dd4hep import Detector
 from EventStore import EventStore
 
-from detector import detector
-from pmt import pmt
+from hcal_layers import hcal_layers
+from hcal_endcap_p import hcal_endcap_p
+from scifi_nfib import scifi_nfib
+from block_scale import block_scale
+from pixel import pixel
+from sipm import sipm
 
 #_____________________________________________________________________________
 class analysis:
@@ -12,10 +17,72 @@ class analysis:
     def __init__(self, outnam="ddhits.root"):
 
         self.inputs = []
-        self.detectors = []
-        self.pmts = []
+        self.detectors = {}
 
         self.outnam = outnam
+
+    #_____________________________________________________________________________
+    def load_detectors(self, compact):
+
+        #load geometry
+        det = self.load_compact(compact)
+
+        #Hcal with threshold on layer
+        nam = ["HcalBarrelHits", "HcalEndcapNHits"]
+        for i in nam:
+            self.add_detector(i, hcal_layers)
+            self.detectors[i].load_compact(det)
+
+        #first layers to count
+        self.detectors["HcalBarrelHits"].ilay_max = 5
+        self.detectors["HcalEndcapNHits"].ilay_max = 10
+
+        #HcalEndcapPHits with 300 MeV for sum of layers
+        self.add_detector("HcalEndcapPHits", hcal_endcap_p)
+        self.detectors["HcalEndcapPHits"].load_compact(det)
+
+        #EcalBarrelScFiHits, SciFi set for groups of 300 fibers
+        self.add_detector("EcalBarrelScFiHits", scifi_nfib)
+
+        #EcalEndcapPHits with hits per homogenious block
+        self.add_detector("EcalEndcapPHits", block_scale)
+
+        #detectors with one hit per pixel
+        self.add_detector("VertexBarrelHits", pixel)
+        self.detectors["VertexBarrelHits"].threshold = 4e-7 # GeV, 0.4 keV
+
+        self.add_detector("TrackerBarrelHits", pixel)
+        self.detectors["TrackerBarrelHits"].threshold = 4e-7 # GeV, 0.4 keV
+
+        self.add_detector("TrackerEndcapHits", pixel)
+        self.detectors["TrackerEndcapHits"].threshold = 4e-7 # GeV, 0.4 keV
+
+        self.add_detector("MPGDTrackerBarrelHits", pixel)
+        self.detectors["MPGDTrackerBarrelHits"].threshold = 2e-7 # GeV, 0.2 keV
+
+        self.add_detector("GEMTrackerEndcapHits", pixel)
+        self.detectors["GEMTrackerEndcapHits"].threshold = 2e-7 # GeV, 0.2 keV
+
+        self.add_detector("EcalEndcapNHits", pixel)
+        self.detectors["EcalEndcapNHits"].threshold = 2.5e-3 # GeV, 2.5 MeV
+
+        self.add_detector("EcalBarrelHits", pixel)
+        self.detectors["EcalBarrelHits"].threshold = 4e-7 # GeV, 0.4 keV
+
+        #SiPMs
+        self.add_detector("ERICHHits", sipm)
+        self.add_detector("DRICHHits", sipm)
+
+
+    #_____________________________________________________________________________
+    def load_compact(self, nam):
+
+        det = Detector.getInstance()
+        det.fromCompact(nam)
+        det.volumeManager()
+        det.apply("DD4hepVolumeManager", 0, 0)
+
+        return det
 
     #_____________________________________________________________________________
     def event_loop(self):
@@ -23,9 +90,7 @@ class analysis:
         store = EventStore(self.inputs)
 
         out = TFile(self.outnam, "recreate")
-        for i in self.detectors:
-            i.create_output()
-        for i in self.pmts:
+        for i in self.detectors.values():
             i.create_output()
 
         #event loop
@@ -34,20 +99,13 @@ class analysis:
 
             nev += 1
 
-            #hit loop
-            for i in self.detectors:
-                i.hit_loop(store)
-            for i in self.pmts:
+            #hit loop for each detector
+            for i in self.detectors.values():
                 i.hit_loop(store)
 
         print("    Output file:     ", self.outnam)
         print("    Number of events:", nev)
-        for i in self.detectors:
-            #print(i.name, i.otree.GetEntries())
-            print("    {0:24s}".format(i.name,), i.otree.GetEntries())
-            i.otree.Write()
-        for i in self.pmts:
-            #print(i.name, i.otree.GetEntries())
+        for i in self.detectors.values():
             print("    {0:24s}".format(i.name,), i.otree.GetEntries())
             i.otree.Write()
 
@@ -64,14 +122,11 @@ class analysis:
         self.inputs = inp
 
     #_____________________________________________________________________________
-    def add_detector(self, name):
+    def add_detector(self, name, det):
 
-        self.detectors.append( detector(name) )
+        self.detectors[name] = det(name)
 
-    #_____________________________________________________________________________
-    def add_pmt(self, name):
 
-        self.pmts.append( pmt(name) )
 
 
 

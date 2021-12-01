@@ -5,7 +5,7 @@ from matplotlib.lines import Line2D
 import math as ma
 
 import ROOT as rt
-from ROOT import gPad, gROOT, gStyle, TFile, gSystem
+from ROOT import gPad, gROOT, gStyle, TFile, gSystem, TH1D
 
 import sys
 sys.path.append("/home/jaroslav/sim/lmon/macro")
@@ -14,7 +14,7 @@ import plot_utils as ut
 #_____________________________________________________________________________
 def main():
 
-    iplot = 1
+    iplot = 0
 
     func = {}
     func[0] = hit_en
@@ -30,9 +30,12 @@ def hit_en():
 
     #hit energy
 
-    #infile = "../ddhits/ddhits.root"
+    infile = "../ddhits/ddhits.root"
     #infile = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a/ddhits_f1000.root"
-    infile = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a/ddhits_f10.root"
+    #infile = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a/ddhits_f10.root"
+
+    #legtxt = "Electron beam-gas"
+    legtxt = "Pythia6"
 
     #det = {"VertexBarrelHits": "blue", "TrackerBarrelHits": "gold", "TrackerEndcapHits": "red"}
     #det = {"EcalEndcapPHits": "blue", "EcalEndcapNHits": "gold", "EcalBarrelHits": "lime", "EcalBarrelScFiHits": "red"}
@@ -45,9 +48,9 @@ def hit_en():
         ep[i] = get_hit_en(inp, i)
 
     #plot
-    #plt.style.use("dark_background")
-    #col = "lime"
-    col = "black"
+    plt.style.use("dark_background")
+    col = "lime"
+    #col = "black"
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -55,6 +58,8 @@ def hit_en():
     set_grid(plt, col)
 
     leg = legend()
+    leg.add_entry(leg_txt(), legtxt)
+
     for i in ep:
 
         plt.plot(ep[i][0], ep[i][1], "-", color=det[i], lw=1)
@@ -86,7 +91,10 @@ def get_hit_en(inp, det):
     htree = inp.Get(det)
 
     hE = ut.prepare_TH1D("hE", ebin, emin, emax)
-    htree.Draw("TMath::Log10(en*1e6) >> hE") # keV
+
+    #htree.Draw("TMath::Log10(en*1e6) >> hE") # keV
+    htree.Draw("TMath::Log10(en*1e6) >> hE", "en>0.4*1e-6") # keV
+
     ut.norm_to_integral(hE, 1.)
 
     return ut.h1_to_arrays(hE)
@@ -156,9 +164,9 @@ def hit_rate():
         print(i[0:-4], " & {0:.3f}".format(bg[i]*1e-6), " & {0:.3f}".format(py[i]*1e-6), r"\\") # MHz
 
     #plot
-    #plt.style.use("dark_background")
-    #col = "lime"
-    col = "black"
+    plt.style.use("dark_background")
+    col = "lime"
+    #col = "black"
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -229,11 +237,16 @@ def get_rate_pythia6(infile, nsim, det):
 
     inp = TFile.Open(infile)
 
+    hx = TH1D("hx", "hx", 1, 0, 100000)
     rate = {}
     for i in det:
         htree = inp.Get(i)
 
-        rate[i] = htree.GetEntries()*rsim
+        #rate[i] = htree.GetEntries()*rsim
+
+        hx.Reset()
+        htree.Draw("en>>hx")
+        rate[i] = hx.GetEntries()*rsim
 
     #sort by the rate
     #rate = dict(sorted(rate.items(), key=lambda item: -item[1]))

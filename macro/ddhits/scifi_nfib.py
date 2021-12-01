@@ -5,34 +5,52 @@ from ctypes import c_double
 from ROOT import TTree
 
 #_____________________________________________________________________________
-class detector:
+class scifi_nfib:
     #_____________________________________________________________________________
     def __init__(self, name):
 
         self.name = name
 
+        #number of fibers in a group
+        self.nfib = 300
+
+        #threshold at 2.5 MeV for the group of fibers
+        self.threshold = 2.5e-3 # GeV
+
     #_____________________________________________________________________________
     def hit_loop(self, store):
 
+        ifib = 0
+        esum = 0.
         for ihit in store.get(self.name):
 
-            self.out_en.value = ihit.energyDeposit()
+            ifib += 1
+            esum += ihit.energyDeposit()
 
-            pos = ihit.position()
+            if ifib >= self.nfib:
+                ifib = 0
 
-            self.out_z.value = pos.z
-            self.out_r.value = math.sqrt( pos.x**2 + pos.y**2 )
+                if esum < self.threshold:
+                    esum = 0.
+                    continue
 
-            self.otree.Fill()
+                #print(esum)
+
+                self.out_en.value = esum
+                self.otree.Fill()
+
+                esum = 0.
 
     #_____________________________________________________________________________
     def create_output(self):
 
         self.otree = TTree(self.name, self.name)
         self.out_en = c_double(0)
-        self.out_r = c_double(0)
-        self.out_z = c_double(0)
         self.otree.Branch("en", self.out_en, "en/D")
-        self.otree.Branch("r", self.out_r, "r/D")
-        self.otree.Branch("z", self.out_z, "z/D")
+
+
+
+
+
+
 
