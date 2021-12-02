@@ -14,7 +14,7 @@ import plot_utils as ut
 #_____________________________________________________________________________
 def main():
 
-    iplot = 0
+    iplot = 1
 
     func = {}
     func[0] = hit_en
@@ -30,9 +30,9 @@ def hit_en():
 
     #hit energy
 
-    infile = "../ddhits/ddhits.root"
-    #infile = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a/ddhits_f1000.root"
-    #infile = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a/ddhits_f10.root"
+    #infile = "../ddhits/ddhits.root"
+    #infile = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a/ddhits_pass2.root"
+    infile = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a/ddhits_pass2.root"
 
     #legtxt = "Electron beam-gas"
     legtxt = "Pythia6"
@@ -40,6 +40,7 @@ def hit_en():
     #det = {"VertexBarrelHits": "blue", "TrackerBarrelHits": "gold", "TrackerEndcapHits": "red"}
     #det = {"EcalEndcapPHits": "blue", "EcalEndcapNHits": "gold", "EcalBarrelHits": "lime", "EcalBarrelScFiHits": "red"}
     det = {"HcalBarrelHits": "blue", "HcalEndcapNHits": "gold", "HcalEndcapPHits": "red"}
+    #det = {"HcalBarrelHits": "blue", "HcalEndcapNHits": "gold"}
 
     inp = TFile.Open(infile)
 
@@ -48,9 +49,9 @@ def hit_en():
         ep[i] = get_hit_en(inp, i)
 
     #plot
-    plt.style.use("dark_background")
-    col = "lime"
-    #col = "black"
+    #plt.style.use("dark_background")
+    #col = "lime"
+    col = "black"
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -107,15 +108,16 @@ def hit_rate():
     #hit rate
 
     #infile = "../ddhits/ddhits.root"
-    infile = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a/ddhits_f1000.root"
+    #infile = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a/ddhits_f1000.root"
+    infile = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a/ddhits_pass2.root"
 
     #number of simulated events
     nsim = 1e6
 
+    #detectors
     det = [ \
 	"VertexBarrelHits", \
 	"EcalEndcapPHits", \
-	"DIRCBarHits", \
 	"TrackerBarrelHits", \
 	"TrackerEndcapHits", \
 	"MPGDTrackerBarrelHits", \
@@ -130,12 +132,19 @@ def hit_rate():
 	"DRICHHits" \
     ]
 
-    bg = get_rate_beam_gas(infile, nsim, det)
+    #divide factors
+    divide = {}
+    divide["HcalEndcapPHits"] = 51. # number of layers
+    divide["ERICHHits"] = 3. # quantum efficiency
+    divide["DRICHHits"] = 3. # quantum efficiency
 
-    in_py = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a/ddhits_f10.root"
+    bg = get_rate_beam_gas(infile, nsim, det, divide)
+
+    #in_py = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a/ddhits_f10.root"
+    in_py = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a/ddhits_pass2.root"
     nsim_py = 44000.
 
-    py = get_rate_pythia6(in_py, nsim_py, det)
+    py = get_rate_pythia6(in_py, nsim_py, det, divide)
 
     #print(py)
 
@@ -159,9 +168,15 @@ def hit_rate():
 
         idet += 1
 
+    #print(xp)
+    #print(yp)
+
     #table
+    print(r"Detector & $R_h$ (MHz), Electron beam-gas & $R_h$ (MHz), Pythia6 \\")
     for i in bg:
-        print(i[0:-4], " & {0:.3f}".format(bg[i]*1e-6), " & {0:.3f}".format(py[i]*1e-6), r"\\") # MHz
+        #print(i[0:-4], " & {0:.3f}".format(bg[i]*1e-6), " & {0:.3f}".format(py[i]*1e-6), r"\\") # MHz
+        #print(i[0:-4], " & {0:.3f}".format(bg[i]*1e-6), r"\\") # MHz
+        print(i[0:-4], r" & \si{\num{"+"{0:.6f}".format(bg[i]*1e-6)+"}}", r" & \si{\num{"+"{0:.6f}".format(py[i]*1e-6)+"}}", r"\\") # MHz
 
     #plot
     plt.style.use("dark_background")
@@ -193,7 +208,7 @@ def hit_rate():
 #hit_rate
 
 #_____________________________________________________________________________
-def get_rate_beam_gas(infile, nsim, det):
+def get_rate_beam_gas(infile, nsim, det, divide):
 
     #total production rate
     total_rate = 3177253.7 # Hz, Eg > 10 keV
@@ -207,10 +222,11 @@ def get_rate_beam_gas(infile, nsim, det):
     rate = {}
     for i in det:
         htree = inp.Get(i)
-        #print(i, htree)
-        #print(i, htree.GetEntries()*rsim*1e-6)
 
         rate[i] = htree.GetEntries()*rsim
+
+        if divide.get(i) is not None:
+            rate[i] = rate[i]/divide[i]
 
     #sort by the rate
     rate = dict(sorted(rate.items(), key=lambda item: -item[1]))
@@ -220,7 +236,7 @@ def get_rate_beam_gas(infile, nsim, det):
 #get_rate_beam_gas
 
 #_____________________________________________________________________________
-def get_rate_pythia6(infile, nsim, det):
+def get_rate_pythia6(infile, nsim, det, divide):
 
     #Pythia6 total cross section
     sigma = 40.891e-3 # mb
@@ -237,16 +253,14 @@ def get_rate_pythia6(infile, nsim, det):
 
     inp = TFile.Open(infile)
 
-    hx = TH1D("hx", "hx", 1, 0, 100000)
     rate = {}
     for i in det:
         htree = inp.Get(i)
 
-        #rate[i] = htree.GetEntries()*rsim
+        rate[i] = htree.GetEntries()*rsim
 
-        hx.Reset()
-        htree.Draw("en>>hx")
-        rate[i] = hx.GetEntries()*rsim
+        if divide.get(i) is not None:
+            rate[i] = rate[i]/divide[i]
 
     #sort by the rate
     #rate = dict(sorted(rate.items(), key=lambda item: -item[1]))
