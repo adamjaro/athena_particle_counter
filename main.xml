@@ -31,14 +31,20 @@
     <include ref="counter/display.xml" />
   </display>
 
+<comment>
   <include ref="ip6/beampipe.xml"/>
 
   <include ref="counter/forward_electron_layout.xml" />
+</comment>
+
+<comment>
+  <include ref="compact/ecal.xml"/>
+  <include ref="compact/hcal.xml"/>
+</comment>
 
 
 
-
-
+  <include ref="counter/hcal.xml"/>
 
 
 

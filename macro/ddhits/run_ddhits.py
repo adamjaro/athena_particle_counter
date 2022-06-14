@@ -14,8 +14,8 @@ def main():
     compact = "../../../athena/athena.xml"
 
     #input
-    #indir = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a"
-    indir = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a"
+    indir = "/home/jaroslav/sim/Athena/data/beam-gas/cnt1a"
+    #indir = "/home/jaroslav/sim/Athena/data/pythia6/py10x100a"
     inlist = glob(indir+"/0000/"+"output.root")
 
     #output

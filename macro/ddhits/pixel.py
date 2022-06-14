@@ -14,6 +14,9 @@ class pixel:
         #energy threshold to be defined from outside
         self.threshold = 0.
 
+        #z of primary vertex, mm
+        self.vtx_z = c_double(0)
+
     #_____________________________________________________________________________
     def hit_loop(self, store):
 
@@ -31,6 +34,8 @@ class pixel:
             self.out_y.value = pos.y
             self.out_z.value = pos.z
 
+            self.out_time.value = hit.truth().time
+
             self.otree.Fill()
 
     #_____________________________________________________________________________
@@ -41,11 +46,13 @@ class pixel:
         self.out_x = c_double(0)
         self.out_y = c_double(0)
         self.out_z = c_double(0)
+        self.out_time = c_double(0)
         self.otree.Branch("en", self.out_en, "en/D")
         self.otree.Branch("x", self.out_x, "x/D")
         self.otree.Branch("y", self.out_y, "y/D")
         self.otree.Branch("z", self.out_z, "z/D")
-
+        self.otree.Branch("time", self.out_time, "time/D")
+        self.otree.Branch("vtx_z", self.vtx_z, "vtx_z/D")
 
 
 

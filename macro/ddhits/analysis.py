@@ -1,5 +1,7 @@
 
-from ROOT import TFile
+from ROOT import TFile, TTree
+
+from ctypes import c_double
 
 from dd4hep import Detector
 from EventStore import EventStore
@@ -93,21 +95,67 @@ class analysis:
         for i in self.detectors.values():
             i.create_output()
 
+        #mc tree
+        mc_tree = TTree("mc", "mc")
+        phot_ve_x = c_double(0)
+        phot_ve_y = c_double(0)
+        phot_ve_z = c_double(0)
+        phot_vs_x = c_double(0)
+        phot_vs_y = c_double(0)
+        phot_vs_z = c_double(0)
+        mc_tree.Branch("phot_ve_x", phot_ve_x, "phot_ve_x/D")
+        mc_tree.Branch("phot_ve_y", phot_ve_y, "phot_ve_y/D")
+        mc_tree.Branch("phot_ve_z", phot_ve_z, "phot_ve_z/D")
+        mc_tree.Branch("phot_vs_x", phot_vs_x, "phot_vs_x/D")
+        mc_tree.Branch("phot_vs_y", phot_vs_y, "phot_vs_y/D")
+        mc_tree.Branch("phot_vs_z", phot_vs_z, "phot_vs_z/D")
+
         #event loop
         nev = 0
         for iev, evt in enumerate(store):
 
             nev += 1
 
+            #print("Next event")
+
+            #mc particles
+            for imc in store.get("mcparticles"):
+
+                #if imc.pdgID() != 22 or imc.parents_size() != 0: continue
+
+                if imc.parents_size() == 0:
+
+                    phot_ve_x.value = imc.ve().x
+                    phot_ve_y.value = imc.ve().y
+                    phot_ve_z.value = imc.ve().z
+                    phot_vs_x.value = imc.vs().x
+                    phot_vs_y.value = imc.vs().y
+                    phot_vs_z.value = imc.vs().z
+
+                    #print("mc: ", imc.pdgID(), imc.parents_size(), imc.ve().z, imc.vs().z)
+
+            mc_tree.Fill()
+
+            self.detectors["VertexBarrelHits"].vtx_z.value = phot_vs_z.value
+            self.detectors["TrackerBarrelHits"].vtx_z.value = phot_vs_z.value
+            self.detectors["TrackerEndcapHits"].vtx_z.value = phot_vs_z.value
+
             #hit loop for each detector
             for i in self.detectors.values():
                 i.hit_loop(store)
+
+
+
+
+
 
         print("    Output file:     ", self.outnam)
         print("    Number of events:", nev)
         for i in self.detectors.values():
             print("    {0:24s}".format(i.name,), i.otree.GetEntries())
             i.otree.Write()
+
+        mc_tree.Write()
 
         out.Close()
 
